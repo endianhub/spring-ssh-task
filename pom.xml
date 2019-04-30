@@ -15,7 +15,7 @@
 		<commons.lang3.version>3.7</commons.lang3.version>
 		<commons.io.version>2.6</commons.io.version>
 		<junit.version>3.8.1</junit.version>
-		<spring.version>4.3.13.RELEASE</spring.version>
+		<spring.version>4.3.18.RELEASE</spring.version>
 		<fastjson.version>1.2.47</fastjson.version>
 		<druid.version>1.1.10</druid.version>
 		<mysql.version>5.1.40</mysql.version>
@@ -25,7 +25,7 @@
 		<redis.clients.version>2.9.0</redis.clients.version>
 
 		<servlet.version>3.1.0</servlet.version>
-		<jackson.version>2.9.0</jackson.version>
+		<jackson.version>2.9.8</jackson.version>
 		<httpclient.version>4.5.6</httpclient.version>
 		<httpmime.version>4.5.6</httpmime.version>
 	</properties>
