@@ -18,7 +18,8 @@
 	<aop:aspectj-autoproxy expose-proxy="true" proxy-target-class="true" />
 
 	<!-- 使用Annotation自动注册Bean,扫描@Controller和@ControllerAdvice -->
-	<context:component-scan base-package="com.xh.ssh.web.task;
+	<context:component-scan
+		base-package="com.xh.ssh.web.task;
 		com.xh.ssh.web.task.common.exception;
 		com.xh.ssh.web.task.common.aspect"
 		use-default-filters="false">
@@ -39,7 +40,7 @@
 	<bean id="springTool" class="com.xh.ssh.web.task.common.tool.SpringTool" />
 
 	<!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
-	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+	<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
 		<property name="messageConverters">
 			<list>
 				<!-- json转换器 -->
