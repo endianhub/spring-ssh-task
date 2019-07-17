@@ -25,7 +25,6 @@ import com.xh.ssh.web.task.model.WebTask;
 import com.xh.ssh.web.task.service.IWebTaskService;
 import com.xh.ssh.web.task.service.scheduler.ISchedulerManageService;
 
-
 /**
  * <b>Title: 任务管理</b>
  * <p>Description: </p>
@@ -191,13 +190,18 @@ public class WebTaskController extends BaseController {
 	public Object undeploy(String taskId) {
 		Assert.isBlank(taskId, "任务ID不能为空！");
 
-		boolean flag = schedulerManageService.quartzUndeployTask(taskId);
-		LogTool.debug(this.getClass(), flag);
+		List<Integer> list = this.paramSplit(taskId);
+		boolean flag = false;
+		for (Integer tid : list) {
+			taskId = String.valueOf(tid);
+			flag = schedulerManageService.quartzUndeployTask(taskId);
+			LogTool.debug(this.getClass(), flag);
+		}
 		if (flag) {
 			return super.renderSuccess();
 		}
 
-		return super.renderError("任务：" + taskId + " 部署失败");
+		return super.renderError("任务：" + taskId + " 取消失败");
 	}
 
 	// 暂停定时任务
@@ -206,13 +210,18 @@ public class WebTaskController extends BaseController {
 	public Object pause(String taskId) {
 		Assert.isBlank(taskId, "任务ID不能为空！");
 
-		boolean flag = schedulerManageService.quartzPauseTask(taskId);
-		LogTool.debug(this.getClass(), flag);
+		List<Integer> list = this.paramSplit(taskId);
+		boolean flag = false;
+		for (Integer tid : list) {
+			taskId = String.valueOf(tid);
+			flag = schedulerManageService.quartzPauseTask(taskId);
+			LogTool.debug(this.getClass(), flag);
+		}
 		if (flag) {
 			return super.renderSuccess();
 		}
 
-		return super.renderError("任务：" + taskId + " 部署失败");
+		return super.renderError("任务：" + taskId + " 暂停失败");
 	}
 
 	// 恢复
@@ -221,13 +230,18 @@ public class WebTaskController extends BaseController {
 	public Object restoreTask(String taskId) {
 		Assert.isBlank(taskId, "任务ID不能为空！");
 
-		boolean flag = schedulerManageService.quartzRestoreTask(taskId);
-		LogTool.debug(this.getClass(), flag);
+		List<Integer> list = this.paramSplit(taskId);
+		boolean flag = false;
+		for (Integer tid : list) {
+			taskId = String.valueOf(tid);
+			flag = schedulerManageService.quartzRestoreTask(taskId);
+			LogTool.debug(this.getClass(), flag);
+		}
 		if (flag) {
 			return super.renderSuccess();
 		}
 
-		return super.renderError("任务：" + taskId + " 部署失败");
+		return super.renderError("任务：" + taskId + " 恢复失败");
 	}
 
 	// 关闭定时任务
@@ -236,13 +250,36 @@ public class WebTaskController extends BaseController {
 	public Object shutdown(String taskId) {
 		Assert.isBlank(taskId, "任务ID不能为空！");
 
-		boolean flag = schedulerManageService.quartzShutdownTask(taskId);
-		LogTool.debug(this.getClass(), flag);
+		List<Integer> list = this.paramSplit(taskId);
+		boolean flag = false;
+		for (Integer tid : list) {
+			taskId = String.valueOf(tid);
+			flag = schedulerManageService.quartzShutdownTask(taskId);
+			LogTool.debug(this.getClass(), flag);
+		}
 		if (flag) {
 			return super.renderSuccess();
 		}
 
-		return super.renderError("任务：" + taskId + " 部署失败");
+		return super.renderError("任务：" + taskId + " 关闭失败");
+	}
+
+	@RequestMapping("restar")
+	@ResponseBody
+	public Object restar(String taskId) {
+		Assert.isBlank(taskId, "任务ID不能为空！");
+		List<Integer> list = this.paramSplit(taskId);
+		boolean flag = false;
+		for (Integer tid : list) {
+			taskId = String.valueOf(tid);
+			flag = schedulerManageService.quartzRestartTask(taskId);
+			LogTool.debug(this.getClass(), flag);
+		}
+		if (flag) {
+			return super.renderSuccess();
+		}
+
+		return super.renderError("任务：" + taskId + " 重启失败");
 	}
 
 	private List<Integer> paramSplit(String paramId) {

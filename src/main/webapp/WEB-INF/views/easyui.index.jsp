@@ -128,6 +128,9 @@
 	function restoreTask() {
 		ajaxTask("restore.action");
 	}
+	function restarTask() {
+		ajaxTask("restore.action");
+	}
 
 	function ajaxTask(url) {
 		var rows = $("#taskDataGrid").datagrid("getSelections");
@@ -178,8 +181,9 @@
 		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="executeTask()">执行</a>
 		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="undeployTask()">取消部署</a>
 		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="pauseTask()">暂停</a>
-		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="shutdownTask()">关闭</a>
 		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="restoreTask()">恢复</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="shutdownTask()">关闭</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="restarTask()">重启</a>
 
 		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="saveDialog()">添加</a>
 		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="removeDialog()">删除</a>

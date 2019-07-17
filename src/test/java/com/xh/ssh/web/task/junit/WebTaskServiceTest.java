@@ -1,16 +1,20 @@
 package com.xh.ssh.web.task.junit;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.alibaba.fastjson.JSON;
+import com.xh.ssh.web.task.common.tool.JedisClientTool;
 import com.xh.ssh.web.task.model.WebTask;
 import com.xh.ssh.web.task.service.IWebTaskService;
 
@@ -28,6 +32,37 @@ public class WebTaskServiceTest {
 
 	@Resource
 	private IWebTaskService taskService;
+
+	// 清空缓存
+	@Test
+	public void flushAll() {
+		JedisClientTool.flushAll();
+	}
+
+	// @Test
+	public void testSan() {
+		ApplicationContext context = new ClassPathXmlApplicationContext("spring/spring-config.xml");
+		Object target = context.getBean("doTask_MyTaskServiceImpl");
+		System.out.println("\n\n target = " + target);
+	}
+
+	// @Test
+	public void save() {
+		WebTask task = new WebTask();
+		task.setTaskName("测试");
+		task.setTaskClass("DoTask_MyTaskServiceImpl");
+		task.setTaskDesc("测试");
+		// task.setTaskUrl(taskUrl);
+		// task.setPlanExec(planExec);
+		// task.setExecuted(executed);
+		task.setCron("*/3 * * * * ?");
+		task.setCronDesc("每隔3秒执行一次");
+		// task.setNoticeList(noticeList);
+		task.setStatus(1);
+		task.setCreateTime(new Date());
+
+		taskService.save(task);
+	}
 
 	// @Test
 	public void query() {
@@ -64,17 +99,17 @@ public class WebTaskServiceTest {
 		System.out.println(JSON.toJSONString(task));
 	}
 
-	@Test
+	// @Test
 	public void get() {
 		String taskId = "1";
 		WebTask task = (WebTask) taskService.load(WebTask.class, Integer.valueOf(taskId));
 		System.out.println(JSON.toJSONString(task));
 
 		// taskService.update(task);
-//		Map<String, String> excludeFieldMap = new HashMap<String, String>();
-//		excludeFieldMap.put("createTime", "createTime");
-//		excludeFieldMap.put("status", "status");
-//		excludeFieldMap.put("noticeList", "noticeList");
+		// Map<String, String> excludeFieldMap = new HashMap<String, String>();
+		// excludeFieldMap.put("createTime", "createTime");
+		// excludeFieldMap.put("status", "status");
+		// excludeFieldMap.put("noticeList", "noticeList");
 
 		// taskService.update(task, null, true);
 

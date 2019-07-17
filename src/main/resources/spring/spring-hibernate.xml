@@ -70,18 +70,18 @@
 	<!--4、事务管理 属性 -->
 	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
 		<tx:attributes>
-			<tx:method name="save*" propagation="REQUIRED" rollback-for="Exception" />
-			<tx:method name="insert*" propagation="REQUIRED" rollback-for="Exception" />
-			<tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception" />
-			<tx:method name="update*" propagation="REQUIRED" rollback-for="Exception" />
-			<tx:method name="quartz*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="save*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+			<tx:method name="insert*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+			<tx:method name="delete*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+			<tx:method name="update*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+			<tx:method name="quartz*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
 			<tx:method name="*" propagation="REQUIRED" read-only="true" />
 		</tx:attributes>
 	</tx:advice>
 
 	<!-- 5、配置切面 -->
 	<aop:config expose-proxy="true" proxy-target-class="true">
-		<aop:advisor advice-ref="transactionAdvice" pointcut="execution(* com.xh.ssh.web.task..*.*(..))" />
+		<aop:advisor advice-ref="transactionAdvice" pointcut="execution(* com.xh.ssh.web.task.service..*.*(..))" />
 	</aop:config>
 
 </beans>

@@ -26,7 +26,6 @@ import com.xh.ssh.web.task.service.IDoTaskService;
 import com.xh.ssh.web.task.service.scheduler.ISchedulerManageService;
 import com.xh.ssh.web.task.service.scheduler.TriggerQuartzJobProxy;
 
-
 /**
  * <b>Title: 定时器管理</b>
  * <p>Description: </p>
@@ -55,6 +54,9 @@ public class SchedulerManageServiceImpl implements ISchedulerManageService {
 			}
 
 			Object target = SpringTool.getSpringBean(task.getTaskClass());
+			// ApplicationContext context = new ClassPathXmlApplicationContext("spring/spring-config.xml");
+			// Object target = context.getBean(task.getTaskClass());
+
 			if (target == null) {
 				LogTool.info(this.getClass(), task.getTaskId() + " - " + task.getTaskName() + "，没有扫描到" + task.getTaskClass() + "类！");
 				return Result.exception(ConstantTool.NOT_FOUND, task.getTaskName() + "没有扫描到" + task.getTaskClass() + "类！");
@@ -183,8 +185,10 @@ public class SchedulerManageServiceImpl implements ISchedulerManageService {
 		try {
 			WebTask task = TaskPoolTool.get(taskId);
 			Scheduler scheduler = schedulerFactoryBean.getScheduler();
+
+			TriggerKey key = TriggerKey.triggerKey(taskId, task.getTaskClass());
 			// 停止触发器
-			scheduler.pauseTrigger(TriggerKey.triggerKey(taskId, task.getTaskClass()));
+			scheduler.pauseTrigger(key);
 
 			task.setStatus(3);// 已暂停
 			this.updateWebTask(task);
@@ -258,6 +262,7 @@ public class SchedulerManageServiceImpl implements ISchedulerManageService {
 
 	@Override
 	public void updateWebTask(WebTask entity) {
+		LogTool.info(this.getClass(), " update WebTask ");
 		webTaskDao.updateObject(entity);
 	}
 

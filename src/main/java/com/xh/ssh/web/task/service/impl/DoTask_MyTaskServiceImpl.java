@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import com.xh.ssh.web.task.model.WebTask;
 import com.xh.ssh.web.task.service.IDoTaskService;
 
-
 /**
  * <b>Title: 创建一个测试任务</b>
  * <p>Description: </p>
@@ -19,7 +18,7 @@ public class DoTask_MyTaskServiceImpl implements IDoTaskService {
 
 	@Override
 	public void execute(WebTask task) {
-		System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+		System.out.println(System.currentTimeMillis() + "AAAAAAAAAAAA");
 	}
 
 }
