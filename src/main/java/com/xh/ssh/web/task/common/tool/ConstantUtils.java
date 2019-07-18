@@ -7,7 +7,7 @@ package com.xh.ssh.web.task.common.tool;
  * @author H.Yang
  * @email xhaimail@163.com
  */
-public class ConstantTool {
+public class ConstantUtils {
 
 	public static final Integer OK = 200;// 请求正常处理完毕
 	public static final Integer BAD_REQUEST = 400;// 请求报文语法错误或参数错误

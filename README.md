@@ -1,4 +1,4 @@
-## 定时任务
+## 定时任务 - 接口实现（不带启动监听）
 
 1. 定时任务
 2. 异常码/异常处理器/统一异常处理
@@ -41,6 +41,72 @@
 一种有return返回值的:return point.proceed(); <br>
 一种没有返回值的：Object obj = point.proceed(); obj中会有最终返回的参数
 
+
+<br>
+<hr>
+<br>
+
+
+### SpringACAUtils与SpringUtils区别：
+
+**SpringACAUtils继承了ApplicationContextAware接口:**
+
+加载Spring配置文件时，如果Spring配置文件中所定义的Bean类实现了ApplicationContextAware 接口，那么在加载Spring配置文件时会自动调用ApplicationContextAware 接口中的 setApplicationContext(ApplicationContext context) 方法，获得ApplicationContext对象。前提必须在Spring配置文件中指定该类。
+
+地址：https://blog.csdn.net/bailinbbc/article/details/76446594
+
+<br>
+
+**SpringUtils**
+
+WEB容器在启动时，它会为每个WEB应用程序都创建一个对应的ServletContext对象，它代表当前web应用。ServletConfig对象中维护了ServletContext对象的引用，开发人员在编写servlet时，可以通过ServletConfig.getServletContext方法获得ServletContext对象。
+
+由于一个WEB应用中的所有Servlet共享同一个ServletContext对象，因此Servlet对象之间可以通过ServletContext对象来实现通讯。ServletContext对象通常也被称之为context域对象。
+
+
+**注意：**
+一个web应用对应唯一的一个ServletContext对象
+
+<br>
+<br>
+
+### SchedulerFactoryBean与StdSchedulerFactory区别
+
+**SchedulerFactoryBean**
+
+SchedulerFactoryBean是spring-context-support-xxxx.jar下的一个接口，从中看到其实现了FactoryBean、BeanNameAware、ApplicationContextAware、InitializingBean、DisposableBean等常用接口，这些接口的具体意义本文不作赘述，不了解的可以专门研究下Spring的原理和源码实现。根据Spring的原理我们知道，如果Bean本身实现了InitializingBean接口，那么在Spring加载解析BeanDefinition，并初始化Bean后会调用SchedulerFactoryBean的afterPropertiesSet方法。
+
+
+在afterPropertiesSet中首先会初始化SchedulerFactory：
+
+	this.scheduler = prepareScheduler(prepareSchedulerFactory());
+
+	......
+
+	schedulerFactory = BeanUtils.instantiateClass(this.schedulerFactoryClass);
+	if (schedulerFactory instanceof StdSchedulerFactory) {
+		initSchedulerFactory((StdSchedulerFactory) schedulerFactory);
+	}
+
+属性schedulerFactoryClass的默认值是StdSchedulerFactory.class，因此这里默认会初始化StdSchedulerFactory，用户也可以使用Spring的配置文件修改schedulerFactoryClass的值为其他SchedulerFactory接口的实现（比如RemoteScheduler或者继承RemoteMBeanScheduler的子类）。在使用Spring的BeanUtils工具类对SchedulerFactory实例化后，调用initSchedulerFactory方法对SchedulerFactory初始化。最终是调用StdSchedulerFactory类。
+
+仔细阅读initSchedulerFactory方法，可以理解其初始化过程如下: <br>
+1. 对于非StdSchedulerFactory的其他SchedulerFactory，需要对参数进行检查； <br>
+2. 设置内置的属性并存入mergedProps这个字典中。这些属性包括： <br>
+- org.quartz.scheduler.classLoadHelper.class：用于Quartz与Spring集成时加载Spring资源； <br>
+- org.quartz.threadPool.class：执行Quartz中Task的线程池； <br>
+- org.quartz.threadPool.threadCount：执行Quartz中Task的线程池的线程数量。 <br>
+3. 加载configLocation属性指定的属性文件中的属性并合并到mergedProps中，这说明属性文件中的配置可以覆盖内置的属性参数。向mergedProps中设置其它属性： <br>
+- org.quartz.jobStore.class：作业持久化存储的类，值为LocalDataSourceJobStore； <br>
+- org.quartz.scheduler.instanceName：值为Spring配置文件中设置的值； <br>
+
+SchedulerFactoryBean需要注入并且要配置参数。
+
+
+
+**StdSchedulerFactory**
+
+StdSchedulerFactory是一个类，并有单例的使用方式： `Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();` 
 
 
 <br>

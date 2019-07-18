@@ -174,4 +174,11 @@ public class WebTask {
 	public Date getCreateTime() {
 		return createTime;
 	}
+
+	@Override
+	public String toString() {
+		return "WebTask [taskId=" + taskId + ", taskName=" + taskName + ", taskClass=" + taskClass + ", taskDesc=" + taskDesc + ", taskUrl=" + taskUrl + ", planExec=" + planExec
+				+ ", executed=" + executed + ", cron=" + cron + ", cronDesc=" + cronDesc + ", noticeList=" + noticeList + ", status=" + status + ", createTime=" + createTime + "]";
+	}
+
 }

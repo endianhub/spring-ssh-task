@@ -11,8 +11,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.xh.ssh.web.task.common.result.Result;
-import com.xh.ssh.web.task.common.tool.LogTool;
-import com.xh.ssh.web.task.common.tool.WebTool;
+import com.xh.ssh.web.task.common.tool.LogUtils;
+import com.xh.ssh.web.task.common.tool.WebUtils;
 
 
 /**
@@ -29,14 +29,14 @@ public class ExceptionResolver implements HandlerExceptionResolver {
 	@SuppressWarnings("unchecked")
 	public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception e) {
 		// log记录异常
-		LogTool.error(this.getClass(), e);
+		LogUtils.error(this.getClass(), e);
 		// 非控制器请求照成的异常
 		if (!(handler instanceof HandlerMethod)) {
 			return new ModelAndView("error/500");
 		}
 		HandlerMethod handlerMethod = (HandlerMethod) handler;
 
-		if (WebTool.isAjax(handlerMethod)) {
+		if (WebUtils.isAjax(handlerMethod)) {
 			Result<Object> result = new Result<Object>(null, e.getMessage());
 			MappingJackson2JsonView view = new MappingJackson2JsonView();
 			view.setContentType("text/html;charset=UTF-8");

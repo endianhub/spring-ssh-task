@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * @date 2018年8月28日
  */
 @SuppressWarnings("all")
-public class DateFormatTool {
+public class DateFormatUtils {
 
 	private final static Map<String, String> FORMAT_MAP = new HashMap<String, String>();
 	public final static String DATA_FORMATTER1_1 = "yyyyMMdd";
@@ -97,7 +97,7 @@ public class DateFormatTool {
 	public static String getDateFormat(String orginal) {
 		String formatStr = "";
 		for (Map.Entry<String, String> entry : FORMAT_MAP.entrySet()) {
-			boolean flag = DateFormatTool.isMatch(entry.getKey(), orginal);
+			boolean flag = DateFormatUtils.isMatch(entry.getKey(), orginal);
 			if (flag) {
 				formatStr = entry.getValue();
 				break;
@@ -134,7 +134,7 @@ public class DateFormatTool {
 		try {
 			String formatStr = "";
 			for (Map.Entry<String, String> entry : FORMAT_MAP.entrySet()) {
-				boolean flag = DateFormatTool.isMatch(entry.getKey(), orginal);
+				boolean flag = DateFormatUtils.isMatch(entry.getKey(), orginal);
 				if (flag) {
 					formatStr = entry.getValue();
 					break;

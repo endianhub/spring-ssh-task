@@ -22,7 +22,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.xh.ssh.web.task.common.annotation.AfterThrowingAspect;
 import com.xh.ssh.web.task.common.annotation.AroundAspect;
 import com.xh.ssh.web.task.common.aspect.ILogAspect;
-import com.xh.ssh.web.task.common.tool.LogTool;
+import com.xh.ssh.web.task.common.tool.LogUtils;
 
 /**
  * <p>Title: AOP 日志</p>
@@ -76,7 +76,7 @@ public class LogAspectImpl implements ILogAspect {
 		Object[] params = point.getArgs();
 		String message = this.operateContent(className, methodName, params, request);
 
-		LogTool.info(this.getClass(), message);
+		LogUtils.info(this.getClass(), message);
 	}
 
 	@Around("aroundAspect()")
@@ -91,13 +91,13 @@ public class LogAspectImpl implements ILogAspect {
 		AroundAspect log = method.getAnnotation(AroundAspect.class);
 
 		String message = this.operateContent(className, methodName, params, request);
-		LogTool.info(this.getClass(), message);
+		LogUtils.info(this.getClass(), message);
 
 		Object obj = null;
 		// 打印日志
 		if (log.value()) {
 			obj = point.proceed();
-			LogTool.info(this.getClass(), obj);
+			LogUtils.info(this.getClass(), obj);
 		}
 		// 保存日志
 		return obj;
@@ -112,7 +112,7 @@ public class LogAspectImpl implements ILogAspect {
 		Object[] params = point.getArgs();
 		String message = this.operateContent(className, methodName, params, request);
 
-		LogTool.info(this.getClass(), message);
+		LogUtils.info(this.getClass(), message);
 	}
 
 	@AfterThrowing(value = "afterThrowingAspect()", throwing = "exception")

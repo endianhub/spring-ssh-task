@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 
 import com.xh.ssh.web.task.common.exception.ExceptionCode;
 import com.xh.ssh.web.task.common.result.Result;
-import com.xh.ssh.web.task.common.tool.StringEscapeEditorTool;
+import com.xh.ssh.web.task.common.tool.StringEscapeEditorUtils;
 
 /**
  * <b>Title: </b>
@@ -30,7 +30,7 @@ public abstract class BaseController {
 		/**
 		 * 防止XSS攻击
 		 */
-		binder.registerCustomEditor(String.class, new StringEscapeEditorTool());
+		binder.registerCustomEditor(String.class, new StringEscapeEditorUtils());
 	}
 
 	/**

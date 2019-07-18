@@ -12,9 +12,9 @@ import org.springframework.web.util.HtmlUtils;
  * @date 2018年4月8日
  * 
  */
-public class StringEscapeEditorTool extends PropertyEditorSupport {
+public class StringEscapeEditorUtils extends PropertyEditorSupport {
 
-	public StringEscapeEditorTool() {
+	public StringEscapeEditorUtils() {
 
 	}
 

@@ -29,7 +29,7 @@ import java.util.Map;
  * @date 2018年8月28日
  */
 @SuppressWarnings("all")
-public class BeanTool {
+public class BeanUtils {
 
 	/**
 	 * <b>Title: 将Map对象通过反射机制转换成Bean对象</b>
@@ -52,14 +52,14 @@ public class BeanTool {
 			for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
 				name = propertyDescriptor.getName();
 				// 获取指定字段名称查找在class中的对应的Field对象(包括查找父类)
-				Field field = BeanTool.getClassField(clazz, name);
+				Field field = BeanUtils.getClassField(clazz, name);
 				if (map.containsKey(name)) {
 					Class fieldTypeClass = field.getType();
 
 					// 下面一句可以 try 起来，这样当一个属性赋值失败的时候就不会影响其他属性赋值。
 					Object value = map.get(name);
 					value = ("".equals(value)) ? null : value;
-					value = (value != null) ? BeanTool.toValType(value, fieldTypeClass) : null;
+					value = (value != null) ? BeanUtils.toValType(value, fieldTypeClass) : null;
 					try {
 						propertyDescriptor.getWriteMethod().invoke(obj, value);
 					} catch (InvocationTargetException e) {

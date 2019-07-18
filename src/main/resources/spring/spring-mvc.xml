@@ -36,9 +36,6 @@
 	<mvc:resources location="/static/" mapping="/static/**" />
 	<mvc:resources location="/plugins/" mapping="/plugins/**" />
 
-	<!-- 获取spring注解类 -->
-	<bean id="springTool" class="com.xh.ssh.web.task.common.tool.SpringTool" />
-
 	<!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
 	<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
 		<property name="messageConverters">

@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.xh.ssh.web.task.common.result.Result;
-import com.xh.ssh.web.task.common.tool.ConstantTool;
+import com.xh.ssh.web.task.common.tool.ConstantUtils;
 import com.xh.ssh.web.task.common.tool.PageData;
 
 /**
@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(ResultException.class)
 	@ResponseBody
 	public Result handleResultException(ResultException e) {
-		return Result.exception(ConstantTool.INTERNAL_SERVER_ERROR, "操作异常", e.getMessage());
+		return Result.exception(ConstantUtils.INTERNAL_SERVER_ERROR, "操作异常", e.getMessage());
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(MaxUploadSizeExceededException.class)
 	public ModelAndView handleResultException(MaxUploadSizeExceededException e) {
-		return new ModelAndView("", PageData.entityToMap(Result.exception(ConstantTool.FORBIDDEN, "上传文件过大")));
+		return new ModelAndView("", PageData.entityToMap(Result.exception(ConstantUtils.FORBIDDEN, "上传文件过大")));
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	public Result handleResultException(Exception e) {
-		return Result.exception(ConstantTool.INTERNAL_SERVER_ERROR, "操作异常", e.getMessage());
+		return Result.exception(ConstantUtils.INTERNAL_SERVER_ERROR, "操作异常", e.getMessage());
 	}
 
 }

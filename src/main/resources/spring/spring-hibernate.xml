@@ -75,6 +75,9 @@
 			<tx:method name="delete*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
 			<tx:method name="update*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
 			<tx:method name="quartz*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+			<tx:method name="asynchUpdate*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+			<tx:method name="asynchSave*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+			<tx:method name="asynchDel*" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
 			<tx:method name="*" propagation="REQUIRED" read-only="true" />
 		</tx:attributes>
 	</tx:advice>

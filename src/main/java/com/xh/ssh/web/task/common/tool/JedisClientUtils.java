@@ -17,7 +17,7 @@ import redis.clients.jedis.exceptions.JedisDataException;
  * @email xhaimail@163.com
  * @date 2018年8月29日
  */
-public class JedisClientTool {
+public class JedisClientUtils {
 
 	private static int index = 7;
 	/** 默认缓存时间 */
@@ -58,7 +58,7 @@ public class JedisClientTool {
 
 		jedisPool = new JedisPool(poolConfig, "127.0.0.1", 6379);
 
-		LogTool.info(JedisClientTool.class, "=== JedisClientTool init:" + jedisPool + " ===");
+		LogUtils.info(JedisClientUtils.class, "=== JedisClientTool init:" + jedisPool + " ===");
 	}
 
 	/**
@@ -72,13 +72,13 @@ public class JedisClientTool {
 	 */
 	public static void handleJedisException(Exception jedisException) {
 		if (jedisException instanceof JedisConnectionException) {
-			LogTool.info(JedisClientTool.class, "Redis connection lost.");
+			LogUtils.info(JedisClientUtils.class, "Redis connection lost.");
 		} else if (jedisException instanceof JedisDataException) {
 			if ((jedisException.getMessage() != null) && (jedisException.getMessage().indexOf("READONLY") != -1)) {
-				LogTool.info(JedisClientTool.class, "Redis connection  are read-only slave.");
+				LogUtils.info(JedisClientUtils.class, "Redis connection  are read-only slave.");
 			}
 		} else {
-			LogTool.info(JedisClientTool.class, "Jedis exception happen.");
+			LogUtils.info(JedisClientUtils.class, "Jedis exception happen.");
 		}
 	}
 
@@ -93,7 +93,7 @@ public class JedisClientTool {
 	private static void releaseResource(Jedis jedis) {
 		if (jedis != null) {
 			jedis.close();
-			LogTool.info(JedisClientTool.class, "redis close.");
+			LogUtils.info(JedisClientUtils.class, "redis close.");
 		}
 	}
 
@@ -111,8 +111,8 @@ public class JedisClientTool {
 			jedis.flushAll();
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache清空失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache清空失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 		} finally {
 			releaseResource(jedis);
 		}
@@ -137,8 +137,8 @@ public class JedisClientTool {
 			return true;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache保存失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache保存失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -164,8 +164,8 @@ public class JedisClientTool {
 			return true;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache保存失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache保存失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -189,8 +189,8 @@ public class JedisClientTool {
 			return jedis.get(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache获取失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache获取失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -214,8 +214,8 @@ public class JedisClientTool {
 			return jedis.get(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache获取失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache获取失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -242,8 +242,8 @@ public class JedisClientTool {
 			return true;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache删除失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -270,8 +270,8 @@ public class JedisClientTool {
 			return true;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache删除失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -298,8 +298,8 @@ public class JedisClientTool {
 			return true;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache设置超时时间失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache设置超时时间失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -326,8 +326,8 @@ public class JedisClientTool {
 			return true;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache设置超时时间失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache设置超时时间失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -354,8 +354,8 @@ public class JedisClientTool {
 			return true;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache保存失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache保存失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -382,8 +382,8 @@ public class JedisClientTool {
 			return true;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache保存失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache保存失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -408,8 +408,8 @@ public class JedisClientTool {
 			return jedis.hget(key, field);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache读取失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache读取失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -435,8 +435,8 @@ public class JedisClientTool {
 			return obj;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache读取失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache读取失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -462,8 +462,8 @@ public class JedisClientTool {
 			return result == 1;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache删除失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -489,8 +489,8 @@ public class JedisClientTool {
 			return result == 1;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache删除失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -515,8 +515,8 @@ public class JedisClientTool {
 			return allKey;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache获取失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache获取失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -541,8 +541,8 @@ public class JedisClientTool {
 			return allKey;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache获取失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache获取失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -567,8 +567,8 @@ public class JedisClientTool {
 			return map;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache获取失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache获取失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -593,8 +593,8 @@ public class JedisClientTool {
 			return map;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache获取失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache获取失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -620,8 +620,8 @@ public class JedisClientTool {
 			return result;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache获取失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache获取失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -647,8 +647,8 @@ public class JedisClientTool {
 			return result;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, "Cache获取失败：" + e.getMessage());
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, "Cache获取失败：" + e.getMessage());
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -677,7 +677,7 @@ public class JedisClientTool {
 			}
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			// 业务操作完成，将连接返回给连接池
@@ -708,7 +708,7 @@ public class JedisClientTool {
 			}
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogTool.error(JedisClientTool.class, e);
+			LogUtils.error(JedisClientUtils.class, e);
 			return false;
 		} finally {
 			// 业务操作完成，将连接返回给连接池

@@ -12,30 +12,24 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.xh.ssh.web.task.common.exception.ResultException;
 
-
 /**
  * <b>Title: Spring工具类</b>
- * <p>Description: </p>
+ * <p>Description: 
+ * 加载Spring配置文件时，如果Spring配置文件中所定义的Bean类实现了ApplicationContextAware 接口，那么在加载Spring配置文件时会自动调用ApplicationContextAware 接口中的 setApplicationContext(ApplicationContext context) 方法，
+ * 获得ApplicationContext对象。前提必须在Spring配置文件中指定该类。
+ * http://www.blogjava.net/yangjunwei/archive/2013/08/23/403211.html
+ * </p>
  * 
  * @author H.Yang
  * @email xhaimail@163.com
  * @date 2018年9月5日
  */
 @SuppressWarnings("all")
-public class SpringTool implements ApplicationContextAware {
+public class SpringACAUtils implements ApplicationContextAware {
 
 	// Spring应用上下文环境
 	private static ApplicationContext applicationContext;
 
-	/**
-	 * <b>Title: 接口实现</b>
-	 * <p>Description: </p>
-	 * 
-	 * @author H.Yang
-	 * 
-	 * @param applicationContext
-	 * @throws BeansException
-	 */
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
@@ -53,10 +47,13 @@ public class SpringTool implements ApplicationContextAware {
 		return bean;
 	}
 
-	public static <T> T getSpringBeanThrows(String beanName) {
+	public static <T> T getSpringBean(String beanName, boolean isThrow) {
 
 		if (getSpringBean(StringUtils.uncapitalize(beanName)) == null) {
-			throw new ResultException("can not get bean:" + beanName);
+			if (isThrow) {
+				throw new ResultException("can not get bean:" + beanName);
+			}
+			return null;
 		}
 		T bean = (T) getSpringBean(StringUtils.uncapitalize(beanName));
 		return bean;

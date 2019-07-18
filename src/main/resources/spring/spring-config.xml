@@ -17,7 +17,12 @@
 	<!-- 开启扫描注解 -->
 	<context:component-scan base-package="com.xh.ssh.web" />
 
-	<bean id="schedulerFactoryBean" name="schedulerFactory" class="org.springframework.scheduling.quartz.SchedulerFactoryBean" />
+	<bean id="schedulerFactoryBean" name="schedulerFactory" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="configLocation" value="classpath:config/quartz.properties" />
+	</bean>
+
+	<!-- 获取spring注解类，不配置则无法使用 -->
+	<bean id="springTool" class="com.xh.ssh.web.task.common.tool.SpringACAUtils" />
 
 	<import resource="classpath:spring/spring-hibernate.xml" />
 </beans>

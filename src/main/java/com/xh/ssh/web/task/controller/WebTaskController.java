@@ -17,10 +17,10 @@ import com.xh.ssh.web.task.common.annotation.AroundAspect;
 import com.xh.ssh.web.task.common.exception.ResultException;
 import com.xh.ssh.web.task.common.result.Result;
 import com.xh.ssh.web.task.common.tool.Assert;
-import com.xh.ssh.web.task.common.tool.DateFormatTool;
-import com.xh.ssh.web.task.common.tool.JedisClientTool;
-import com.xh.ssh.web.task.common.tool.LogTool;
-import com.xh.ssh.web.task.common.tool.TaskPoolTool;
+import com.xh.ssh.web.task.common.tool.DateFormatUtils;
+import com.xh.ssh.web.task.common.tool.JedisClientUtils;
+import com.xh.ssh.web.task.common.tool.LogUtils;
+import com.xh.ssh.web.task.common.tool.TaskPoolUtils;
 import com.xh.ssh.web.task.model.WebTask;
 import com.xh.ssh.web.task.service.IWebTaskService;
 import com.xh.ssh.web.task.service.scheduler.ISchedulerManageService;
@@ -58,13 +58,13 @@ public class WebTaskController extends BaseController {
 	@PostMapping("save")
 	@ResponseBody
 	public Object save(WebTask task) {
-		LogTool.info(this.getClass(), task);
+		LogUtils.info(this.getClass(), task);
 		Assert.notNull(task, "对象不能为空！");
 		boolean isRepeatQuest = false;
-		String time = DateFormatTool.parseDateToString(new Date(), DateFormatTool.DATA_FORMATTER3_3);
+		String time = DateFormatUtils.parseDateToString(new Date(), DateFormatUtils.DATA_FORMATTER3_3);
 		String key = this.getClass().getSimpleName() + "_" + task;
 		try {
-			if (JedisClientTool.isExist(key, time)) {
+			if (JedisClientUtils.isExist(key, time)) {
 				isRepeatQuest = true;
 				throw new ResultException("请求正在处理中，请勿重复提交");
 			}
@@ -74,7 +74,7 @@ public class WebTaskController extends BaseController {
 			return super.renderSuccess();
 		} finally {
 			if (!isRepeatQuest) {
-				JedisClientTool.del(key);
+				JedisClientUtils.del(key);
 			}
 		}
 	}
@@ -82,14 +82,14 @@ public class WebTaskController extends BaseController {
 	@PostMapping("edit")
 	@ResponseBody
 	public Object edit(WebTask task) {
-		LogTool.info(this.getClass(), task);
+		LogUtils.info(this.getClass(), task);
 		Assert.notNull(task, "对象不能为空！");
 		Assert.isTrue((task.getStatus() != null && task.getStatus() == 1), "任务已部署！");
 		boolean isRepeatQuest = false;
-		String time = DateFormatTool.parseDateToString(new Date(), DateFormatTool.DATA_FORMATTER3_3);
+		String time = DateFormatUtils.parseDateToString(new Date(), DateFormatUtils.DATA_FORMATTER3_3);
 		String key = this.getClass().getSimpleName() + "_" + task;
 		try {
-			if (JedisClientTool.isExist(key, time)) {
+			if (JedisClientUtils.isExist(key, time)) {
 				isRepeatQuest = true;
 				throw new ResultException("请求正在处理中，请勿重复提交");
 			}
@@ -102,7 +102,7 @@ public class WebTaskController extends BaseController {
 			return super.renderSuccess();
 		} finally {
 			if (!isRepeatQuest) {
-				JedisClientTool.del(key);
+				JedisClientUtils.del(key);
 			}
 		}
 	}
@@ -110,7 +110,7 @@ public class WebTaskController extends BaseController {
 	@RequestMapping("remove")
 	@ResponseBody
 	public Object remove(String taskId) {
-		LogTool.info(this.getClass(), taskId);
+		LogUtils.info(this.getClass(), taskId);
 		Assert.notNull(taskId, "任务ID不能为空！");
 
 		Object obj = taskService.deleteById(this.paramSplit(taskId));
@@ -135,13 +135,13 @@ public class WebTaskController extends BaseController {
 		String name = "";
 		List<Integer> list = this.paramSplit(taskId);
 		for (Integer tid : list) {
-			WebTask task = TaskPoolTool.get(tid + "");
+			WebTask task = TaskPoolUtils.get(tid + "");
 			if (task == null) {
 				task = (WebTask) taskService.load(WebTask.class, tid);
 			}
 
 			boolean flag = schedulerManageService.quartzExecTask(task);
-			LogTool.debug(this.getClass(), task.getTaskId() + " - " + task.getTaskName() + "执行结果" + flag);
+			LogUtils.debug(this.getClass(), task.getTaskId() + " - " + task.getTaskName() + "执行结果" + flag);
 			if (!flag) {
 				name += task.getTaskName() + "、";
 			}
@@ -171,7 +171,7 @@ public class WebTaskController extends BaseController {
 		for (Integer tid : list) {
 			WebTask task = (WebTask) taskService.load(WebTask.class, tid);
 			Result result = schedulerManageService.quartzDeployTask(task);
-			LogTool.debug(this.getClass(), result);
+			LogUtils.debug(this.getClass(), result);
 
 			if (result.getCode() != 200) {
 				name += task.getTaskName() + "，";
@@ -195,7 +195,7 @@ public class WebTaskController extends BaseController {
 		for (Integer tid : list) {
 			taskId = String.valueOf(tid);
 			flag = schedulerManageService.quartzUndeployTask(taskId);
-			LogTool.debug(this.getClass(), flag);
+			LogUtils.debug(this.getClass(), flag);
 		}
 		if (flag) {
 			return super.renderSuccess();
@@ -215,7 +215,7 @@ public class WebTaskController extends BaseController {
 		for (Integer tid : list) {
 			taskId = String.valueOf(tid);
 			flag = schedulerManageService.quartzPauseTask(taskId);
-			LogTool.debug(this.getClass(), flag);
+			LogUtils.debug(this.getClass(), flag);
 		}
 		if (flag) {
 			return super.renderSuccess();
@@ -235,7 +235,7 @@ public class WebTaskController extends BaseController {
 		for (Integer tid : list) {
 			taskId = String.valueOf(tid);
 			flag = schedulerManageService.quartzRestoreTask(taskId);
-			LogTool.debug(this.getClass(), flag);
+			LogUtils.debug(this.getClass(), flag);
 		}
 		if (flag) {
 			return super.renderSuccess();
@@ -255,7 +255,7 @@ public class WebTaskController extends BaseController {
 		for (Integer tid : list) {
 			taskId = String.valueOf(tid);
 			flag = schedulerManageService.quartzShutdownTask(taskId);
-			LogTool.debug(this.getClass(), flag);
+			LogUtils.debug(this.getClass(), flag);
 		}
 		if (flag) {
 			return super.renderSuccess();
@@ -273,7 +273,7 @@ public class WebTaskController extends BaseController {
 		for (Integer tid : list) {
 			taskId = String.valueOf(tid);
 			flag = schedulerManageService.quartzRestartTask(taskId);
-			LogTool.debug(this.getClass(), flag);
+			LogUtils.debug(this.getClass(), flag);
 		}
 		if (flag) {
 			return super.renderSuccess();

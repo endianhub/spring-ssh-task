@@ -18,7 +18,7 @@ public class DoTask_MyTaskServiceImpl implements IDoTaskService {
 
 	@Override
 	public void execute(WebTask task) {
-		System.out.println(System.currentTimeMillis() + "AAAAAAAAAAAA");
+		System.out.println(System.currentTimeMillis() + " => AAAAAAAAAAAA");
 	}
 
 }

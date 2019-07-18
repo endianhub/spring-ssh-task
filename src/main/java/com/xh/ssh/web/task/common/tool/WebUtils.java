@@ -16,7 +16,7 @@ import org.springframework.web.method.HandlerMethod;
  * @QQ 1033542070
  * @date 2018年3月6日
  */
-public class WebTool extends org.springframework.web.util.WebUtils {
+public class WebUtils extends org.springframework.web.util.WebUtils {
 	/**
 	 * 判断是否ajax请求
 	 * spring ajax 返回含有 ResponseBody 或者 RestController注解

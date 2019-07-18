@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * @email xhaimail@163.com
  * @date 2018年8月1日
  */
-public class LogTool {
+public class LogUtils {
 
 	private static Logger LOG4J_LOGGER = null;
 	private static org.slf4j.Logger SLF4J_LOGGER = null;
@@ -38,7 +38,7 @@ public class LogTool {
 	 * @param message
 	 */
 	public static <T> void info(Class<T> clazz, Object message) {
-		LogTool.apache_init(clazz);
+		LogUtils.apache_init(clazz);
 		LOG4J_LOGGER.info(message);
 	}
 
@@ -52,7 +52,7 @@ public class LogTool {
 	 * @param message
 	 */
 	public static <T> void debug(Class<T> clazz, Object message) {
-		LogTool.apache_init(clazz);
+		LogUtils.apache_init(clazz);
 		LOG4J_LOGGER.debug(message);
 	}
 
@@ -66,7 +66,7 @@ public class LogTool {
 	 * @param message
 	 */
 	public static <T> void warn(Class<T> clazz, Object message) {
-		LogTool.apache_init(clazz);
+		LogUtils.apache_init(clazz);
 		LOG4J_LOGGER.warn(message);
 	}
 
@@ -80,7 +80,7 @@ public class LogTool {
 	 * @param message
 	 */
 	public static <T> void error(Class<T> clazz, Object message) {
-		LogTool.apache_init(clazz);
+		LogUtils.apache_init(clazz);
 		LOG4J_LOGGER.error(message);
 	}
 
@@ -95,7 +95,7 @@ public class LogTool {
 	 * @param isPrintEqualLine
 	 */
 	public static <T> void info(Class<T> clazz, Object message, boolean isPrintEqualLine) {
-		LogTool.apache_init(clazz);
+		LogUtils.apache_init(clazz);
 		if (isPrintEqualLine) {
 			if (LOG4J_LOGGER.isInfoEnabled()) {
 				LOG4J_LOGGER.info("===========================================================================\n" + message);
@@ -118,7 +118,7 @@ public class LogTool {
 	 * @param isPrintEqualLine
 	 */
 	public static <T> void debug(Class<T> clazz, Object message, boolean isPrintEqualLine) {
-		LogTool.apache_init(clazz);
+		LogUtils.apache_init(clazz);
 		if (isPrintEqualLine) {
 			if (LOG4J_LOGGER.isInfoEnabled()) {
 				LOG4J_LOGGER.debug("===========================================================================\n" + message);
@@ -141,7 +141,7 @@ public class LogTool {
 	 * @param isPrintEqualLine
 	 */
 	public static <T> void warn(Class<T> clazz, Object message, boolean isPrintEqualLine) {
-		LogTool.apache_init(clazz);
+		LogUtils.apache_init(clazz);
 		if (isPrintEqualLine) {
 			if (LOG4J_LOGGER.isInfoEnabled()) {
 				LOG4J_LOGGER.warn("===========================================================================\n" + message);
@@ -164,7 +164,7 @@ public class LogTool {
 	 * @param isPrintEqualLine
 	 */
 	public static <T> void error(Class<T> clazz, Object message, boolean isPrintEqualLine) {
-		LogTool.apache_init(clazz);
+		LogUtils.apache_init(clazz);
 		if (isPrintEqualLine) {
 			if (LOG4J_LOGGER.isInfoEnabled()) {
 				LOG4J_LOGGER.error("===========================================================================\n" + message);
@@ -186,8 +186,8 @@ public class LogTool {
 	 * @param e
 	 */
 	public static <T> void error(Class<T> clazz, Object message, Exception e) {
-		LogTool.apache_init(clazz);
-		LOG4J_LOGGER.error(message + "  " + LogTool.getExceptionStr(e));
+		LogUtils.apache_init(clazz);
+		LOG4J_LOGGER.error(message + "  " + LogUtils.getExceptionStr(e));
 	}
 
 	/**
@@ -200,8 +200,8 @@ public class LogTool {
 	 * @param e
 	 */
 	public static <T> void error(Class<T> clazz, Exception e) {
-		LogTool.apache_init(clazz);
-		LOG4J_LOGGER.error(LogTool.getExceptionStr(e));
+		LogUtils.apache_init(clazz);
+		LOG4J_LOGGER.error(LogUtils.getExceptionStr(e));
 	}
 
 	/**
@@ -232,7 +232,7 @@ public class LogTool {
 	 * @param arg
 	 */
 	public static <T> void info(Class<T> clazz, String format, Object arg) {
-		LogTool.slf4j_init(clazz);
+		LogUtils.slf4j_init(clazz);
 		SLF4J_LOGGER.info(format, arg);
 	}
 
@@ -248,7 +248,7 @@ public class LogTool {
 	 * @param arg2
 	 */
 	public static <T> void info(Class<T> clazz, String format, Object arg1, Object arg2) {
-		LogTool.slf4j_init(clazz);
+		LogUtils.slf4j_init(clazz);
 		SLF4J_LOGGER.info(format, arg1, arg2);
 	}
 
@@ -263,7 +263,7 @@ public class LogTool {
 	 * @param argArray
 	 */
 	public static <T> void info(Class<T> clazz, String format, Object[] argArray) {
-		LogTool.slf4j_init(clazz);
+		LogUtils.slf4j_init(clazz);
 		SLF4J_LOGGER.info(format, argArray);
 	}
 }

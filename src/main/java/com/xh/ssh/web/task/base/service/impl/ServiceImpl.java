@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.xh.ssh.web.task.base.dao.IHibernateDao;
 import com.xh.ssh.web.task.base.service.IService;
 import com.xh.ssh.web.task.common.tool.Assert;
-import com.xh.ssh.web.task.common.tool.BeanTool;
-import com.xh.ssh.web.task.common.tool.LogTool;
+import com.xh.ssh.web.task.common.tool.BeanUtils;
+import com.xh.ssh.web.task.common.tool.LogUtils;
 
 /**
  * <b>Title: IService 实现类（ 泛型：M 是 mapper 对象，T 是实体 ， PK 是主键泛型 ）</b>
@@ -76,8 +76,8 @@ public class ServiceImpl<M extends IHibernateDao<T, Serializable>, T> implements
 
 	@Override
 	public <T> List<T> loadTableByCloumn(T entity) {
-		List<T> list = (List<T>) defaultDao.selectTableByCloumn(entity.getClass(), BeanTool.parseFromBeanToMap(entity, false));
-		LogTool.info(this.getClass(), "The result is a list....");
+		List<T> list = (List<T>) defaultDao.selectTableByCloumn(entity.getClass(), BeanUtils.parseFromBeanToMap(entity, false));
+		LogUtils.info(this.getClass(), "The result is a list....");
 		return list;
 	}
 

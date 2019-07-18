@@ -7,9 +7,9 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import com.xh.ssh.web.task.common.tool.LogTool;
-import com.xh.ssh.web.task.common.tool.SpringTool;
-import com.xh.ssh.web.task.common.tool.TaskPoolTool;
+import com.xh.ssh.web.task.common.tool.LogUtils;
+import com.xh.ssh.web.task.common.tool.SpringACAUtils;
+import com.xh.ssh.web.task.common.tool.TaskPoolUtils;
 import com.xh.ssh.web.task.model.WebTask;
 import com.xh.ssh.web.task.service.scheduler.impl.SchedulerManageServiceImpl;
 
@@ -41,24 +41,24 @@ public class TriggerQuartzJobProxy implements Job {
 			method.invoke(target, params);
 
 		} catch (Exception e) {
-			LogTool.error(this.getClass(), e);
+			LogUtils.error(this.getClass(), e);
 			flag = 0;
 		} finally {
 			Object[] params = (Object[]) context.getTrigger().getJobDataMap().get(PARAMS);
 			// 更新任务执行次数
 			WebTask task = (WebTask) params[0];
 			task.setExecuted(task.getExecuted() + 1);
-			SchedulerManageServiceImpl schedulerManageServiceImpl = SpringTool.getSpringByBean(SchedulerManageServiceImpl.class);
+			SchedulerManageServiceImpl schedulerManageServiceImpl = SpringACAUtils.getSpringByBean(SchedulerManageServiceImpl.class);
 
 			// 执行次数到达计划执行次数
 			if (task.getPlanExec() > 0) {
 				if (task.getExecuted().intValue() >= task.getPlanExec().intValue()) {
-					LogTool.warn(this.getClass(), task.getTaskClass() + " beyond planned exec time!!!");
+					LogUtils.warn(this.getClass(), task.getTaskClass() + " beyond planned exec time!!!");
 					task.setStatus(2);
 					// 必须先
 					schedulerManageServiceImpl.quartzShutdownTask(String.valueOf(task.getTaskId()));
 					// 然后
-					TaskPoolTool.remove(String.valueOf(task.getTaskId()));
+					TaskPoolUtils.remove(String.valueOf(task.getTaskId()));
 				}
 			}
 			schedulerManageServiceImpl.updateWebTask(task);
