@@ -11,7 +11,6 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
-import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
@@ -48,12 +47,17 @@ public class SchedulerManageServiceImpl implements ISchedulerManageService {
 		try {
 			// 执行次数到达计划执行次数，不再部署
 			if (task.getPlanExec() > 0) {
-				if (task.getExecuted().intValue() >= task.getPlanExec().intValue() || task.getStatus() == ConstantUtils.NUMBER_TWO) {
+				if (task.getExecuted().intValue() >= task.getPlanExec().intValue()) {
 					LogUtils.info(this.getClass(), task.getTaskId() + " - " + task.getTaskName() + "执行次数到达计划执行次数！");
 					return Result.exception(ConstantUtils.FORBIDDEN, task.getTaskName() + "执行次数到达计划执行次数！");
 				}
 			}
-
+			// 如果是部署状态则不能部署
+			if (task.getStatus() == ConstantUtils.NUMBER_TWO) {
+				LogUtils.info(this.getClass(), task.getTaskId() + " - " + task.getTaskName() + "已部署！");
+				return Result.exception(ConstantUtils.FORBIDDEN, task.getTaskName() + "已部署！");
+			}
+			// 反射类
 			Object target = SpringACAUtils.getSpringBean(task.getTaskClass());
 			// ApplicationContext context = new ClassPathXmlApplicationContext("spring/spring-config.xml");
 			// Object target = context.getBean(task.getTaskClass());
@@ -96,39 +100,26 @@ public class SchedulerManageServiceImpl implements ISchedulerManageService {
 			if (!scheduler.isShutdown()) {
 				scheduler.start();
 			}
-
 			task.setStatus(2);// 已部署
-			// this.updateWebTask(task);
-
 			// 放入任务池
 			boolean result = TaskPoolUtils.containsKey(String.valueOf(task.getTaskId()));
 			if (!result) {
 				TaskPoolUtils.put(String.valueOf(task.getTaskId()), task);
 			}
-
-			asynchUpdateWebTask(task);
+			this.updateWebTask(task);
+			return Result.exception(ConstantUtils.OK, "部署成功");
 		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | SchedulerException e) {
 			LogUtils.info(this.getClass(), task.getTaskId() + " - " + task.getTaskName() + "部署失败", e);
 			return Result.exception(ConstantUtils.INTERNAL_SERVER_ERROR, task.getTaskId() + "，部署失败");
 		}
-		return Result.exception(ConstantUtils.OK, "部署成功");
-	}
-
-	public void asynchUpdateWebTask(WebTask task) {
-		new Thread() {
-			public void run() {
-				LogUtils.info(this.getClass(), " update WebTask ");
-				webTaskDao.updateObject(task);
-			}
-		}.start();
 	}
 
 	@Override
 	public boolean quartzModifyTaskCron(String taskId, String cron) {
 		WebTask task = TaskPoolUtils.get(taskId);
 		try {
-			Scheduler sched = schedulerFactoryBean.getScheduler();
-			CronTrigger trigger = (CronTrigger) sched.getTrigger(TriggerKey.triggerKey(taskId, task.getTaskClass()));
+			Scheduler scheduler = schedulerFactoryBean.getScheduler();
+			CronTrigger trigger = (CronTrigger) scheduler.getTrigger(TriggerKey.triggerKey(taskId, task.getTaskClass()));
 			String oldTime = trigger.getCronExpression();
 			if (!oldTime.equalsIgnoreCase(cron)) {
 				this.quartzUndeployTask(taskId);
@@ -149,20 +140,23 @@ public class SchedulerManageServiceImpl implements ISchedulerManageService {
 			if (task == null) {
 				return false;
 			}
-			Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-			// Scheduler scheduler = schedulerFactoryBean.getScheduler();
+			Scheduler scheduler = schedulerFactoryBean.getScheduler();
 			scheduler.pauseTrigger(TriggerKey.triggerKey(taskId, task.getTaskClass()));// 停止触发器
-			scheduler.unscheduleJob(TriggerKey.triggerKey(taskId, task.getTaskClass()));// 移除触发器
-			scheduler.deleteJob(JobKey.jobKey(taskId, task.getTaskClass()));// 删除任务
+			boolean isUns = scheduler.unscheduleJob(TriggerKey.triggerKey(taskId, task.getTaskClass()));// 移除触发器
+			boolean isdel = scheduler.deleteJob(JobKey.jobKey(taskId, task.getTaskClass()));// 删除任务
+
+			LogUtils.info(this.getClass(), "移除触发器：" + isUns);
+			LogUtils.info(this.getClass(), "删除任务：" + isdel);
+
 			TaskPoolUtils.remove(taskId);
 
 			task.setStatus(1);// 未部署
 			this.updateWebTask(task);
+			return true;
 		} catch (Exception e) {
 			LogUtils.error(this.getClass(), e);
 			return false;
 		}
-		return true;
 	}
 
 	@Override
@@ -171,74 +165,94 @@ public class SchedulerManageServiceImpl implements ISchedulerManageService {
 			LogUtils.debug(this.getClass(), "execute: " + task.toString());
 			IDoTaskService doTaskService = SpringACAUtils.getSpringBean(task.getTaskClass());
 			doTaskService.execute(task);
+			return true;
 		} catch (Exception e) {
 			LogUtils.error(this.getClass(), task, e);
 			return false;
 		}
-		return true;
 	}
 
 	@Override
 	public boolean quartzRestartTask(String taskId) {
 		try {
 			WebTask task = TaskPoolUtils.get(taskId);
+			if (task == null) {
+				return false;
+			}
 			Scheduler sched = schedulerFactoryBean.getScheduler();
 			// 重启触发器
 			sched.pauseTrigger(TriggerKey.triggerKey(taskId, task.getTaskClass()));
+			return true;
 		} catch (Exception e) {
 			LogUtils.error(this.getClass(), e);
 			return false;
 		}
-		return true;
 	}
 
 	@Override
 	public boolean quartzPauseTask(String taskId) {
 		try {
 			WebTask task = TaskPoolUtils.get(taskId);
-			Scheduler scheduler = schedulerFactoryBean.getScheduler();
+			if (task == null) {
+				return false;
+			}
+			// 只有已部署的任务才可以执行暂停操作
+			if (task.getStatus() == ConstantUtils.NUMBER_TWO) {
+				Scheduler scheduler = schedulerFactoryBean.getScheduler();
+				TriggerKey key = TriggerKey.triggerKey(taskId, task.getTaskClass());
+				// 停止触发器
+				scheduler.pauseTrigger(key);
 
-			TriggerKey key = TriggerKey.triggerKey(taskId, task.getTaskClass());
-			// 停止触发器
-			scheduler.pauseTrigger(key);
-
-			task.setStatus(3);// 已暂停
-			this.updateWebTask(task);
+				task.setStatus(3);// 已暂停
+				this.updateWebTask(task);
+			}
+			LogUtils.info(this.getClass(), "暂停失败，当前任务状态为：" + task.getStatus());
+			return false;
 		} catch (Exception e) {
 			LogUtils.error(this.getClass(), e);
 			return false;
 		}
-		return true;
 	}
 
 	@Override
 	public boolean quartzRestoreTask(String taskId) {
 		try {
 			WebTask task = TaskPoolUtils.get(taskId);
-			Scheduler scheduler = schedulerFactoryBean.getScheduler();
-			// 恢复触发器
-			scheduler.resumeTrigger(TriggerKey.triggerKey(taskId, task.getTaskClass()));
+			if (task == null) {
+				return false;
+			}
+			// 只有暂停的任务才可以恢复
+			if (task.getStatus() == ConstantUtils.NUMBER_THREE) {
+				Scheduler scheduler = schedulerFactoryBean.getScheduler();
+				// 恢复触发器
+				scheduler.resumeTrigger(TriggerKey.triggerKey(taskId, task.getTaskClass()));
 
-			task.setStatus(2);// 已暂停
-			this.updateWebTask(task);
+				task.setStatus(2);// 已暂停
+				this.updateWebTask(task);
+				return true;
+			}
+			LogUtils.info(this.getClass(), "恢复失败，当前任务状态为：" + task.getStatus());
+			return false;
 		} catch (Exception e) {
 			LogUtils.error(this.getClass(), e);
 			return false;
 		}
-		return true;
 	}
 
 	@Override
 	public boolean quartzShutdownTask(String taskId) {
 		try {
 			WebTask task = TaskPoolUtils.get(taskId);
+			if (task == null) {
+				return false;
+			}
 			Scheduler scheduler = schedulerFactoryBean.getScheduler();
 			scheduler.pauseTrigger(TriggerKey.triggerKey(taskId, task.getTaskClass()));// 停止触发器
-			scheduler.unscheduleJob(TriggerKey.triggerKey(taskId, task.getTaskClass()));// 移除触发器
-			scheduler.deleteJob(JobKey.jobKey(taskId, task.getTaskClass()));// 删除任务
+			boolean isUns = scheduler.unscheduleJob(TriggerKey.triggerKey(taskId, task.getTaskClass()));// 移除触发器
+			boolean isdel = scheduler.deleteJob(JobKey.jobKey(taskId, task.getTaskClass()));// 删除任务
 
-			task.setStatus(1);// 未部署
-			this.updateWebTask(task);
+			LogUtils.info(this.getClass(), "移除触发器：" + isUns);
+			LogUtils.info(this.getClass(), "删除任务：" + isdel);
 		} catch (Exception e) {
 			LogUtils.error(this.getClass(), e);
 			return false;
@@ -249,8 +263,8 @@ public class SchedulerManageServiceImpl implements ISchedulerManageService {
 	@Override
 	public boolean quartzStartAllTask() {
 		try {
-			Scheduler sched = schedulerFactoryBean.getScheduler();
-			sched.start();
+			Scheduler scheduler = schedulerFactoryBean.getScheduler();
+			scheduler.start();
 		} catch (Exception e) {
 			LogUtils.error(this.getClass(), e);
 			return false;
@@ -261,9 +275,9 @@ public class SchedulerManageServiceImpl implements ISchedulerManageService {
 	@Override
 	public boolean quartzShutdownAllTask() {
 		try {
-			Scheduler sched = schedulerFactoryBean.getScheduler();
-			if (!sched.isShutdown()) {
-				sched.shutdown();
+			Scheduler scheduler = schedulerFactoryBean.getScheduler();
+			if (!scheduler.isShutdown()) {
+				scheduler.shutdown();
 			}
 		} catch (Exception e) {
 			LogUtils.error(this.getClass(), e);
