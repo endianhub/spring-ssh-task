@@ -93,7 +93,7 @@ public interface ISchedulerManageService {
 
 	/**
 	 * <b>Title: 关闭定时任务</b>
-	 * <p>Description: </p>
+	 * <p>Description: 只关闭当前当次任务，不做数据更新</p>
 	 * 
 	 * @author H.Yang
 	 * 

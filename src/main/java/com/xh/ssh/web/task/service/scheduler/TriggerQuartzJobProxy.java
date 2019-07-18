@@ -8,7 +8,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.xh.ssh.web.task.common.tool.LogUtils;
-import com.xh.ssh.web.task.common.tool.SpringACAUtils;
+import com.xh.ssh.web.task.common.tool.SpringUtils;
 import com.xh.ssh.web.task.common.tool.TaskPoolUtils;
 import com.xh.ssh.web.task.model.WebTask;
 import com.xh.ssh.web.task.service.scheduler.impl.SchedulerManageServiceImpl;
@@ -48,7 +48,7 @@ public class TriggerQuartzJobProxy implements Job {
 			// 更新任务执行次数
 			WebTask task = (WebTask) params[0];
 			task.setExecuted(task.getExecuted() + 1);
-			SchedulerManageServiceImpl schedulerManageServiceImpl = SpringACAUtils.getSpringByBean(SchedulerManageServiceImpl.class);
+			SchedulerManageServiceImpl schedulerManageServiceImpl = SpringUtils.getSpringBean(SchedulerManageServiceImpl.class);
 
 			// 执行次数到达计划执行次数
 			if (task.getPlanExec() > 0) {

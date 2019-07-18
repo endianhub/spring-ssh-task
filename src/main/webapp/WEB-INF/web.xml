@@ -21,6 +21,11 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
+	<!-- 自定义监听类 -->
+	<listener>
+		<listener-class>com.xh.ssh.web.task.common.listener.StartUpListener</listener-class>
+	</listener>
+
 	<!-- log4j配置，context-param可以省略不配，因为默认就会在src/main/resources找这个文件，所以不需要额外配置引用 -->
 	<context-param>
 		<param-name>Log4jServletContextLocation</param-name>
