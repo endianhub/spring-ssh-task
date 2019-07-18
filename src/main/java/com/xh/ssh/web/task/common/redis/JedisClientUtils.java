@@ -1,7 +1,9 @@
-package com.xh.ssh.web.task.common.tool;
+package com.xh.ssh.web.task.common.redis;
 
 import java.util.Map;
 import java.util.Set;
+
+import com.xh.ssh.web.task.common.tool.LogUtils;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

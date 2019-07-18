@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.xh.ssh.web.task.base.controller.BaseController;
 import com.xh.ssh.web.task.common.annotation.AroundAspect;
 import com.xh.ssh.web.task.common.exception.ResultException;
+import com.xh.ssh.web.task.common.redis.JedisPoolUtils;
 import com.xh.ssh.web.task.common.result.Result;
 import com.xh.ssh.web.task.common.tool.Assert;
 import com.xh.ssh.web.task.common.tool.DateFormatUtils;
-import com.xh.ssh.web.task.common.tool.JedisClientUtils;
 import com.xh.ssh.web.task.common.tool.LogUtils;
 import com.xh.ssh.web.task.common.tool.TaskPoolUtils;
 import com.xh.ssh.web.task.model.WebTask;
@@ -64,7 +64,7 @@ public class WebTaskController extends BaseController {
 		String time = DateFormatUtils.parseDateToString(new Date(), DateFormatUtils.DATA_FORMATTER3_3);
 		String key = this.getClass().getSimpleName() + "_" + task;
 		try {
-			if (JedisClientUtils.isExist(key, time)) {
+			if (JedisPoolUtils.isExist(key, time)) {
 				isRepeatQuest = true;
 				throw new ResultException("请求正在处理中，请勿重复提交");
 			}
@@ -74,7 +74,7 @@ public class WebTaskController extends BaseController {
 			return super.renderSuccess();
 		} finally {
 			if (!isRepeatQuest) {
-				JedisClientUtils.del(key);
+				JedisPoolUtils.del(key);
 			}
 		}
 	}
@@ -89,7 +89,7 @@ public class WebTaskController extends BaseController {
 		String time = DateFormatUtils.parseDateToString(new Date(), DateFormatUtils.DATA_FORMATTER3_3);
 		String key = this.getClass().getSimpleName() + "_" + task;
 		try {
-			if (JedisClientUtils.isExist(key, time)) {
+			if (JedisPoolUtils.isExist(key, time)) {
 				isRepeatQuest = true;
 				throw new ResultException("请求正在处理中，请勿重复提交");
 			}
@@ -102,7 +102,7 @@ public class WebTaskController extends BaseController {
 			return super.renderSuccess();
 		} finally {
 			if (!isRepeatQuest) {
-				JedisClientUtils.del(key);
+				JedisPoolUtils.del(key);
 			}
 		}
 	}

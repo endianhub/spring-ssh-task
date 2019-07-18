@@ -1,6 +1,6 @@
 package com.xh.ssh.web.task.junit;
 
-import com.xh.ssh.web.task.common.tool.JedisClientUtils;
+import com.xh.ssh.web.task.common.redis.JedisClientUtils;
 
 /**
  * <b>Title: </b>

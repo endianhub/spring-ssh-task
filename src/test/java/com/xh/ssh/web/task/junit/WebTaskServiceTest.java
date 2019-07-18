@@ -14,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.alibaba.fastjson.JSON;
-import com.xh.ssh.web.task.common.tool.JedisClientUtils;
+import com.xh.ssh.web.task.common.redis.JedisPoolUtils;
 import com.xh.ssh.web.task.model.WebTask;
 import com.xh.ssh.web.task.service.IWebTaskService;
 
@@ -36,7 +36,7 @@ public class WebTaskServiceTest {
 	// 清空缓存
 	@Test
 	public void flushAll() {
-		JedisClientUtils.flushAll();
+		JedisPoolUtils.flushAll();
 	}
 
 	// @Test

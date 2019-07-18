@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.alibaba.fastjson.JSON;
+import com.xh.ssh.web.task.common.redis.JedisPoolUtils;
 import com.xh.ssh.web.task.model.WebTask;
 
 /**
@@ -18,7 +19,7 @@ import com.xh.ssh.web.task.model.WebTask;
 public class TaskPoolUtils {
 
 	public static Map<String, Object> getTasksMap() {
-		String json = (String) JedisClientUtils.get(WebTask.class.getSimpleName());
+		String json = (String) JedisPoolUtils.get(WebTask.class.getSimpleName());
 		if (json == null) {
 			return new HashMap<String, Object>();
 		}
@@ -30,7 +31,7 @@ public class TaskPoolUtils {
 		Map<String, Object> map = getTasksMap();
 		Object obj = map.remove(taskId);
 		LogUtils.debug(TaskPoolUtils.class, "task removed :" + obj);
-		JedisClientUtils.set(WebTask.class.getSimpleName(), JSON.toJSONString(map));
+		JedisPoolUtils.set(WebTask.class.getSimpleName(), JSON.toJSONString(map));
 	}
 
 	public static int size() {
@@ -49,7 +50,7 @@ public class TaskPoolUtils {
 	public static void put(String taskId, WebTask task) {
 		Map<String, Object> map = getTasksMap();
 		map.put(taskId, JSON.toJSON(task));
-		JedisClientUtils.set(task.getClass().getSimpleName(), JSON.toJSONString(map));
+		JedisPoolUtils.set(task.getClass().getSimpleName(), JSON.toJSONString(map));
 	}
 
 	public static WebTask get(String taskId) {

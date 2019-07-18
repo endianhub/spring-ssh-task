@@ -20,7 +20,7 @@ import redis.clients.jedis.exceptions.JedisDataException;
  * @email xhaimail@163.com
  * @date 2019年7月18日
  */
-public class JedisPoolUtil {
+public class JedisPoolUtils {
 
 	private static int index = 6;
 	/** 默认缓存时间 */
@@ -33,7 +33,7 @@ public class JedisPoolUtil {
 	 */
 	public static JedisPool getJedisPoolInstance() {
 		if (jedisPool == null) {
-			synchronized (JedisPoolUtil.class) {
+			synchronized (JedisPoolUtils.class) {
 				if (jedisPool == null) {
 					JedisPoolConfig poolConfig = new JedisPoolConfig();
 					// 设置最大连接总数
@@ -66,7 +66,7 @@ public class JedisPoolUtil {
 					// poolConfig.setSoftMinEvictableIdleTimeMillis(1800000);
 
 					jedisPool = new JedisPool(poolConfig, "127.0.0.1", 6379);
-					LogUtils.info(JedisPoolUtil.class, "=== JedisClientTool init:" + jedisPool + " ===");
+					LogUtils.info(JedisPoolUtils.class, "=== JedisClientTool init:" + jedisPool + " ===");
 				}
 			}
 		}
@@ -93,13 +93,13 @@ public class JedisPoolUtil {
 	 */
 	public static void handleJedisException(Exception jedisException) {
 		if (jedisException instanceof JedisConnectionException) {
-			LogUtils.info(JedisPoolUtil.class, "Redis connection lost.");
+			LogUtils.info(JedisPoolUtils.class, "Redis connection lost.");
 		} else if (jedisException instanceof JedisDataException) {
 			if ((jedisException.getMessage() != null) && (jedisException.getMessage().indexOf("READONLY") != -1)) {
-				LogUtils.info(JedisPoolUtil.class, "Redis connection  are read-only slave.");
+				LogUtils.info(JedisPoolUtils.class, "Redis connection  are read-only slave.");
 			}
 		} else {
-			LogUtils.info(JedisPoolUtil.class, "Jedis exception happen.");
+			LogUtils.info(JedisPoolUtils.class, "Jedis exception happen.");
 		}
 	}
 
@@ -114,7 +114,7 @@ public class JedisPoolUtil {
 	public static void releaseResource(Jedis jedis) {
 		if (jedis != null) {
 			jedis.close();
-			LogUtils.info(JedisPoolUtil.class, "redis close.");
+			LogUtils.info(JedisPoolUtils.class, "redis close.");
 		}
 	}
 
@@ -128,12 +128,12 @@ public class JedisPoolUtil {
 	public static void flushAll() {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.flushAll();
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache清空失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache清空失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 		} finally {
 			releaseResource(jedis);
 		}
@@ -149,13 +149,13 @@ public class JedisPoolUtil {
 	public static void flushDB() {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			jedis.flushDB();
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache清空失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache清空失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 		} finally {
 			releaseResource(jedis);
 		}
@@ -174,13 +174,13 @@ public class JedisPoolUtil {
 		Jedis jedis = null;
 		Long result = (long) 0;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			result = jedis.exists(keys);
 			return result;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e);
 			return result;
 		} finally {
 			releaseResource(jedis);
@@ -200,14 +200,14 @@ public class JedisPoolUtil {
 		Jedis jedis = null;
 		Boolean result = false;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			result = jedis.exists(key);
 			return result;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -226,13 +226,13 @@ public class JedisPoolUtil {
 	public static Long del(String... keys) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.del(keys);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache删除失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -256,8 +256,8 @@ public class JedisPoolUtil {
 			return jedis.del(keys);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache删除失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -276,13 +276,13 @@ public class JedisPoolUtil {
 	public static String type(String key) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.type(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache删除失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -297,8 +297,8 @@ public class JedisPoolUtil {
 			return jedis.type(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache删除失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -317,13 +317,13 @@ public class JedisPoolUtil {
 	public static Set<String> keys(String pattern) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.keys(pattern);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache删除失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -338,8 +338,8 @@ public class JedisPoolUtil {
 			return jedis.keys(pattern);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache删除失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -357,13 +357,13 @@ public class JedisPoolUtil {
 	public static Long dbsize() {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.dbSize();
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache删除失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -383,13 +383,13 @@ public class JedisPoolUtil {
 	public static Long move(String key, int dbIndex) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.move(key, dbIndex);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache删除失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -399,13 +399,13 @@ public class JedisPoolUtil {
 	public static Long move(byte[] key, int dbIndex) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.move(key, dbIndex);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache删除失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache删除失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -425,14 +425,14 @@ public class JedisPoolUtil {
 	public static Boolean expire(String key, int seconds) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			jedis.expire(key, seconds);
 			return true;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache设置超时时间失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache设置超时时间失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -442,14 +442,14 @@ public class JedisPoolUtil {
 	public static Boolean expire(byte[] key, int seconds) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			jedis.expire(key, seconds);
 			return true;
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache设置超时时间失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache设置超时时间失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return false;
 		} finally {
 			releaseResource(jedis);
@@ -478,13 +478,13 @@ public class JedisPoolUtil {
 	public static String set(String key, String value) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);// 选择redis库号---不指定库号，默认存入到0号库
 			return jedis.set(key, value);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache保存失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache保存失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -494,13 +494,13 @@ public class JedisPoolUtil {
 	public static String set(byte[] keyBytes, byte[] valueBytes) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.set(keyBytes, valueBytes);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, "Cache保存失败：" + e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, "Cache保存失败：" + e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -519,13 +519,13 @@ public class JedisPoolUtil {
 	public static String get(String key) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.get(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -535,13 +535,13 @@ public class JedisPoolUtil {
 	public static byte[] get(byte[] key) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.get(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -561,13 +561,13 @@ public class JedisPoolUtil {
 	public static String getSet(String key, String value) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.getSet(key, value);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -577,13 +577,13 @@ public class JedisPoolUtil {
 	public static byte[] getSet(byte[] keyBytes, byte[] valueBytes) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.getSet(keyBytes, valueBytes);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -602,13 +602,13 @@ public class JedisPoolUtil {
 	public static List<String> mget(String... keys) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.mget(keys);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -618,13 +618,13 @@ public class JedisPoolUtil {
 	public static List<byte[]> get(byte[]... keys) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.mget(keys);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -644,13 +644,13 @@ public class JedisPoolUtil {
 	public static Long setnx(String key, String value) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.setnx(key, value);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -660,13 +660,13 @@ public class JedisPoolUtil {
 	public static Long setnx(byte[] key, byte[] value) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.setnx(key, value);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -687,13 +687,13 @@ public class JedisPoolUtil {
 	public static String setex(String key, String value, int seconds) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.setex(key, seconds, value);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -703,13 +703,13 @@ public class JedisPoolUtil {
 	public static String setex(byte[] key, byte[] value, int seconds) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.setex(key, seconds, value);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -728,13 +728,13 @@ public class JedisPoolUtil {
 	public static String mset(String... keysvalues) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.mset(keysvalues);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -744,13 +744,13 @@ public class JedisPoolUtil {
 	public static String mset(byte[]... keysvalues) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.mset(keysvalues);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -769,13 +769,13 @@ public class JedisPoolUtil {
 	public static Long msetnx(String... keysvalues) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.msetnx(keysvalues);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -785,13 +785,13 @@ public class JedisPoolUtil {
 	public static Long msetnx(byte[]... keysvalues) {
 		Jedis jedis = null;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);
 			return jedis.msetnx(keysvalues);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -825,8 +825,8 @@ public class JedisPoolUtil {
 			return jedis.rpush(key, value);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -841,8 +841,8 @@ public class JedisPoolUtil {
 			return jedis.rpush(keyBytes, valueBytes);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -867,8 +867,8 @@ public class JedisPoolUtil {
 			return jedis.lpush(key, value);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -883,8 +883,8 @@ public class JedisPoolUtil {
 			return jedis.lpush(keyBytes, valueBytes);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -908,8 +908,8 @@ public class JedisPoolUtil {
 			return jedis.llen(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -924,8 +924,8 @@ public class JedisPoolUtil {
 			return jedis.llen(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -949,8 +949,8 @@ public class JedisPoolUtil {
 			return jedis.lpop(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -965,8 +965,8 @@ public class JedisPoolUtil {
 			return jedis.lpop(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -990,8 +990,8 @@ public class JedisPoolUtil {
 			return jedis.rpop(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1006,8 +1006,8 @@ public class JedisPoolUtil {
 			return jedis.rpop(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1040,8 +1040,8 @@ public class JedisPoolUtil {
 			return jedis.hset(key, hash);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1056,8 +1056,8 @@ public class JedisPoolUtil {
 			return jedis.hset(key, hash);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1082,8 +1082,8 @@ public class JedisPoolUtil {
 			return jedis.hmset(key, hash);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1098,8 +1098,8 @@ public class JedisPoolUtil {
 			return jedis.hmset(key, hash);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1125,8 +1125,8 @@ public class JedisPoolUtil {
 			return jedis.hset(key, field, value);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1141,8 +1141,8 @@ public class JedisPoolUtil {
 			return jedis.hset(key, field, value);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1167,8 +1167,8 @@ public class JedisPoolUtil {
 			return jedis.hget(key, field);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1183,8 +1183,8 @@ public class JedisPoolUtil {
 			return jedis.hget(key, field);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1209,8 +1209,8 @@ public class JedisPoolUtil {
 			return jedis.hmget(key, fields);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1225,8 +1225,8 @@ public class JedisPoolUtil {
 			return jedis.hmget(key, fields);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1251,8 +1251,8 @@ public class JedisPoolUtil {
 			return jedis.hexists(key, field);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1267,8 +1267,8 @@ public class JedisPoolUtil {
 			return jedis.hexists(key, field);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1293,8 +1293,8 @@ public class JedisPoolUtil {
 			return jedis.hdel(key, fields);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1309,8 +1309,8 @@ public class JedisPoolUtil {
 			return jedis.hdel(key, fields);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1334,8 +1334,8 @@ public class JedisPoolUtil {
 			return jedis.hlen(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1350,8 +1350,8 @@ public class JedisPoolUtil {
 			return jedis.hlen(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1375,8 +1375,8 @@ public class JedisPoolUtil {
 			return jedis.hkeys(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1391,8 +1391,8 @@ public class JedisPoolUtil {
 			return jedis.hkeys(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1416,8 +1416,8 @@ public class JedisPoolUtil {
 			return jedis.hvals(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1432,8 +1432,8 @@ public class JedisPoolUtil {
 			return jedis.hvals(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1457,8 +1457,8 @@ public class JedisPoolUtil {
 			return jedis.hgetAll(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1473,8 +1473,8 @@ public class JedisPoolUtil {
 			return jedis.hgetAll(key);
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e.getMessage());
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
 			return null;
 		} finally {
 			releaseResource(jedis);
@@ -1495,7 +1495,7 @@ public class JedisPoolUtil {
 		Jedis jedis = null;
 		boolean isExist = false;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);// 选择redis库号---不指定库号，默认存入到0号库
 			// 如果数据存在则返回0，不存在返回1
 			if (jedis.setnx(key, key) == 0) {
@@ -1503,7 +1503,7 @@ public class JedisPoolUtil {
 			}
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e);
 			return false;
 		} finally {
 			// 业务操作完成，将连接返回给连接池
@@ -1526,7 +1526,7 @@ public class JedisPoolUtil {
 		Jedis jedis = null;
 		boolean isExist = false;
 		try {
-			jedis = jedisPool.getResource();
+			jedis = getJedisInstance();
 			jedis.select(index);// 选择redis库号---不指定库号，默认存入到0号库
 			// 如果数据存在则返回0，不存在返回1
 			if (jedis.setnx(key, value) == 0) {
@@ -1534,7 +1534,7 @@ public class JedisPoolUtil {
 			}
 		} catch (Exception e) {
 			handleJedisException(e);
-			LogUtils.error(JedisPoolUtil.class, e);
+			LogUtils.error(JedisPoolUtils.class, e);
 			return false;
 		} finally {
 			// 业务操作完成，将连接返回给连接池
