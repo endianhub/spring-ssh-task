@@ -850,6 +850,47 @@ public class JedisPoolUtils {
 	}
 
 	/**
+	 * <b>Title: 获取key所有元素</b>
+	 * <p>Description: </p>
+	 * 
+	 * @author H.Yang
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public static List<String> lrange(String key) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedisInstance();
+			jedis.select(index);
+			return jedis.lrange(key, 0, -1);
+		} catch (Exception e) {
+			handleJedisException(e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
+			return null;
+		} finally {
+			releaseResource(jedis);
+		}
+	}
+
+	public static List<byte[]> lrange(byte[] key) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedisInstance();
+			jedis.select(index);
+			return jedis.lrange(key, 0, -1);
+		} catch (Exception e) {
+			handleJedisException(e);
+			LogUtils.error(JedisPoolUtils.class, e.getMessage());
+			LogUtils.error(JedisPoolUtils.class, e);
+			return null;
+		} finally {
+			releaseResource(jedis);
+		}
+	}
+
+	/**
 	 * <b>Title: 在名称为key的list头添加一个值为value的 元素</b>
 	 * <p>Description: </p>
 	 * 
